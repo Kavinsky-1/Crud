@@ -42,9 +42,18 @@ app.put('/:id', (req, res) => {
 });
 
 
-app.delete('/:id', (req, res) => {
-  console.log(`Recibida solicitud DELETE para el ID: ${req.params.id}`);
-  res.send(`DELETE recibido para el ID: ${req.params.id}`);
+app.delete('/api/notes/:id', async (req, res) => {
+  try {
+    const { id } = req.params;  // Tengo que usar req.params esta en la url el parametro que voy a pasar no en el body
+    const deleteNote = await Note.findByIdAndDelete(id);
+  
+    if (!deleteNote) {
+      return res.status(404).json({ error: 'Nota no encontrada' });
+    }
+    res.status(200).json({ message: 'Nota eliminada', deleteNote });
+  } catch (error) {
+    res.status(400).json({ error: 'Error al borrar la nota', error });
+  }
 });
 
 const port = 3001;
