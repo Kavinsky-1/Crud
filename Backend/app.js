@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
+const Note = require('./models/Note')
 const app = express();
 
 mongoose.connect(process.env.MONGO_URI)
@@ -12,16 +13,28 @@ mongoose.connect(process.env.MONGO_URI)
 app.use(cors());
 app.use(express.json());
 
-app.post('/', (req, res) => {
-  console.log('Recibida solicitud POST');
-  res.send('POST recibido');
+
+app.post('/api/notes', async (req, res) => {
+  try {
+    const { title, content, date} = req.body;
+    const newNote = new Note({ title, content, date});
+    await newNote.save();
+    res.status(201).json(newNote);
+  } catch (error) {
+    res.status(500).json({ error: 'No se puede guardar la nota' });
+  }
 });
 
 
-app.get('/', (req, res) => {
-  console.log('Recibida solicitud GET');
-  res.send('GET recibido');
+app.get('/api/notes', async (req, res) => {
+  try {
+    const notes = await Note.find(); 
+    res.status(200).json(notes);
+  } catch (error) {
+    res.status(500).json({ error: 'No se pueden obtener las notas' });
+  }
 });
+
 
 app.put('/:id', (req, res) => {
   console.log(`Recibida solicitud PUT para el ID: ${req.params.id}`);
