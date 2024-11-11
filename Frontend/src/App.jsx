@@ -52,6 +52,24 @@ export function App() {
     fetchNotes();
   }, []);
 
+  const onDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/notes/${id}`, {
+        method: 'DELETE',
+      });
+  
+      if (!response.ok) {
+        console.log('Error al eliminar la nota');
+        return;
+      }
+  
+      // Siermpre debo de actualizar el estado eliminando la nota de el
+      setNotes((prevNotes) => prevNotes.filter((note) => note._id !== id));
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  
   return (
     <>
       <h1>Crud</h1>
@@ -65,12 +83,13 @@ export function App() {
       </form>
 
       <h2>Notes</h2>
-      <ul>
+      <ul className="flex bg-black">
         {notes.map((note) => (
-          <li key={note._id}>
+          <li key={note._id} className="list-style">
             <h3>{note.title}</h3>
             <p>{note.content}</p>
             <button>Editar</button>
+            <button onClick={() => onDelete(note._id)}>Delete</button>
           </li>
         ))}
       </ul>
