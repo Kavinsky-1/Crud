@@ -29,6 +29,8 @@ export function App() {
           },
           body: JSON.stringify(newNote),
         })
+        const savedNote = await response.json()
+        setNotes((beforeNote) => [...beforeNote, savedNote])
           setInput('');
           setContent('');
       } catch (error) {
@@ -68,6 +70,7 @@ export function App() {
           <li key={note._id}>
             <h3>{note.title}</h3>
             <p>{note.content}</p>
+            <button>Editar</button>
           </li>
         ))}
       </ul>
