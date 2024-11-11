@@ -14,6 +14,16 @@ app.use(cors());
 app.use(express.json());
 
 
+app.get('/api/notes', async (req, res) => {
+  try {
+    const notes = await Note.find(); 
+    res.status(200).json(notes);
+  } catch (error) {
+    res.status(500).json({ error: 'No se pueden obtener las notas' });
+  }
+});
+
+
 app.post('/api/notes', async (req, res) => {
   try {
     const { title, content, date} = req.body;
@@ -26,19 +36,25 @@ app.post('/api/notes', async (req, res) => {
 });
 
 
-app.get('/api/notes', async (req, res) => {
-  try {
-    const notes = await Note.find(); 
-    res.status(200).json(notes);
-  } catch (error) {
-    res.status(500).json({ error: 'No se pueden obtener las notas' });
+app.put('/api/notes/:id',async (req,res) => {
+  
+  const {id} = req.params;
+  const {title,content,date} = req.body;
+  try{
+    const updateNote = await Note.findByIdAndUpdate(
+      id,
+      {title,content,date},
+      {new:true}
+    );
+
+    if(!updateNote){
+      res.status(404).json({error:'No se pudo encontrar la nota'});
+    }
+
+    res.status(200).json({message:'La nota ha sido actualizada'});
+  }catch(error){
+    res.status(500).json({error: 'La nota no fue actualizada'});
   }
-});
-
-
-app.put('/:id', (req, res) => {
-  console.log(`Recibida solicitud PUT para el ID: ${req.params.id}`);
-  res.send(`PUT recibido para el ID: ${req.params.id}`);
 });
 
 
@@ -55,6 +71,7 @@ app.delete('/api/notes/:id', async (req, res) => {
     res.status(400).json({ error: 'Error al borrar la nota', error });
   }
 });
+
 
 const port = 3001;
 app.listen(port, () => {
